@@ -1,6 +1,6 @@
 "use client";
 
-import { BlockList } from "net";
+import Verification from "@/components/Verification/Verification";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
@@ -11,7 +11,10 @@ export default function RegistrationC() {
   const router = useRouter();
   const [firstName, setFirstName] = useState<string>("");
   const [otpModel, setOtpModel] = useState<boolean>(false);
-  const [successUser, setSuccessUser] = useState<string>("");
+  const [successUser, setSuccessUser] = useState<{
+    email?: string;
+    otp?: string;
+  } | null>(null);
 
   const [lastName, setLastName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
@@ -20,14 +23,69 @@ export default function RegistrationC() {
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
-  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {};
+  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    const trimmedEmail = email?.trim();
+    const trimmedPassword = password.trim();
+    const trimmedConfirmPassword = confirmPassword.trim();
+
+    if (!firstName || !lastName || !email || !password || !confirmPassword) {
+      toast.error("Please fill out all fields");
+      setLoading(false);
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      toast.error("Passwords do not match");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const res = await fetch("https://apitest.softvencefsd.xyz/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          first_name: firstName,
+          last_name: lastName,
+          email: trimmedEmail,
+          password: trimmedPassword,
+          password_confirmation: trimmedConfirmPassword,
+        }),
+      });
+
+      const result = await res.json();
+      console.log(result);
+
+      if (result.status === 201) {
+        setSuccessUser(result?.data);
+        setOtpModel(true);
+        toast.success("Registration successful! Please verify your email.");
+      } else {
+        if (result.errors) {
+          const messages = Object.values(result.errors).flat().join(" ");
+          toast.error(messages);
+        } else {
+          toast.error(result.message || "Registration failed");
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Server error");
+    }
+
+    setLoading(false);
+  };
 
   return (
     <>
       <ToastContainer position="top-center" />
+
       {otpModel ? (
-        // <Verification successUser={successUser} />
-        ""
+        <Verification successUser={successUser} />
       ) : (
         <div className="min-h-screen flex items-center justify-center bg-white">
           <div className="w-full max-w-md bg-white p-6 rounded-xl shadow-none">
