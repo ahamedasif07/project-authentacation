@@ -10,7 +10,7 @@ const Success = () => {
   return (
     <div className="flex flex-col justify-center items-center min-h-screen bg-gradient-to-br from-green-50 to-white px-4">
       {/* ✅ Green Tick Icon */}
-      <FaCheckCircle className="text-green-600 w-24 h-24 mb-6" />
+      <FaCheckCircle className="text-green-600 w-24 h-24 mb-6 hover:text-green-700 ease-in-out transform duration-300" />
 
       {/* ✅ Title */}
       <h1 className="text-4xl font-bold text-gray-800 mb-2">
@@ -25,7 +25,7 @@ const Success = () => {
       {/* ✅ Button */}
       <button
         onClick={() => router.push("/")}
-        className="px-4 py-2 bg-green-600 text-white rounded-xl font-semibold shadow-md hover:bg-green-700 transition-all duration-300"
+        className="px-[18px] py-2 bg-green-600 text-white rounded-xl font-semibold shadow-md hover:bg-green-700 transition-all duration-300"
       >
         Go to Dashboard
       </button>
