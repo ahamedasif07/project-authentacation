@@ -32,18 +32,9 @@ export default function LoginC() {
 
     try {
       setLoading(true);
-      // const res = await fetch("https://apitest.softvencefsd.xyz/api/login", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({
-      //     email: trimmedEmail,
-      //     password: trimmedPassword,
-      //   }),
-      // });
-
       const res = await fetch("https://apitest.softvencefsd.xyz/api/login", {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: trimmedEmail,
           password: trimmedPassword,
@@ -51,10 +42,14 @@ export default function LoginC() {
       });
 
       const result = await res.json();
-      console.log(result, "result from reaponce");
+      console.log(result, "login page result");
+      if (result?.status) {
+        toast.success("Login successfully");
+        router.push("/success");
+      }
     } catch (err) {
-      console.error(err);
-      setError("Server error");
+      console.log(err);
+      setError("sarcer error");
     } finally {
       setLoading(false);
     }
