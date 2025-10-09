@@ -17,23 +17,24 @@ type KeyDownHandler = (
 
 interface VerificationProps {
   successUser?: {
-    email?: string;
     otp?: string;
   } | null;
+  email?: string; // add email here
 }
 
-const Verification: React.FC<VerificationProps> = ({ successUser }) => {
+const ForgetVerification: React.FC<VerificationProps> = ({
+  successUser,
+  email,
+}) => {
   const router = useRouter();
 
   // ✅ State Management
-  const [email, setEmail] = useState("");
+
   const [otp, setOtp] = useState<string[]>(Array(6).fill(""));
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   // ✅ Fill email and OTP when successUser is available
   useEffect(() => {
-    if (successUser?.email) setEmail(successUser.email);
     if (successUser?.otp) setOtp(successUser.otp.split(""));
   }, [successUser]);
 
@@ -63,12 +64,15 @@ const Verification: React.FC<VerificationProps> = ({ successUser }) => {
   // ✅ Verify OTP API call
   const handleVerify: ClickHandler = async (e) => {
     e.preventDefault();
-    setError("");
 
     if (!email) {
-      toast.error("Email is missing. Please go back and register again.");
+      toast.error(
+        "Email is missing. Please go back and enter your email first."
+      );
       return;
     }
+
+    const userEmail = email.trim();
 
     const code = otp.join("");
 
@@ -85,17 +89,16 @@ const Verification: React.FC<VerificationProps> = ({ successUser }) => {
       const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, otp: code.trim() }),
+        body: JSON.stringify({ email: userEmail, otp: code.trim() }),
       });
 
       const result = await res.json();
       console.log("Verify response:", result);
 
-      if (result.status === true || result.success === true) {
+      if (result.status === 201) {
         toast.success("Email verified successfully!");
-        setTimeout(() => {
-          router.push("/");
-        }, 1500);
+
+        router.push("/");
       } else {
         toast.error(result.message || "Invalid code, try again");
       }
@@ -131,7 +134,7 @@ const Verification: React.FC<VerificationProps> = ({ successUser }) => {
 
         {/* OTP Inputs */}
         <div className="flex justify-between mb-6">
-          {otp?.map((digit, index) => (
+          {otp.map((digit, index) => (
             <input
               key={index}
               id={`otp-${index}`}
@@ -173,4 +176,4 @@ const Verification: React.FC<VerificationProps> = ({ successUser }) => {
   );
 };
 
-export default Verification;
+export default ForgetVerification;
